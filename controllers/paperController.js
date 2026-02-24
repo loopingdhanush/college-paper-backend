@@ -1,10 +1,20 @@
 import Paper from "../models/paper.js";
 import cloudinary from "../config/cloudinary.js";
-import paper from "../models/paper.js";
+
 
 export const uploadPaper = async (req, res) => {
   try {
     const { department, subject, year, type } = req.body;
+
+    const exists = await Paper.findOne({
+      department,
+      subject,
+      year,
+      type
+    });
+    if (exists) {
+      return res.status(400).json({ message: "Paper already exists" });
+    }
     
     if (!req.file) {
       return res.status(400).json({ message: "No file uploaded" });
@@ -24,6 +34,10 @@ export const uploadPaper = async (req, res) => {
       cloudinary_id: result.public_id,
       uploadedBy: req.user.uid
     });
+
+    // temp files (approver)
+    
+    
 
     res.status(201).json(paper);
   } catch (error) {
@@ -59,21 +73,12 @@ export const approvePaper = async (req, res) => {
   }
 };
 
-export const getApprovedPapers = async (req,res) =>{
-  try{
-    const papers = await paper.find({approved:true});
-    res.json(papers);
-  } catch (error) {
-    res.status({message: "Failed to fetch"});
-  }
-}
-
 export const getAllPapers = async(req,res) =>{
   try {
-  const allPapers = await paper.find().sort({createdAt: -1});
+  const allPapers = await Paper.find().sort({createdAt: -1});
   res.json(allPapers);
   } catch {
-    res.status({message: "Failed to fetch"});
+    res.json({message: "Failed to fetch"});
   }
 }
 
@@ -96,5 +101,63 @@ export const getFilteredPaper = async (req, res) => {
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Failed to retrieve" });
+  }
+};
+
+export const pendingPaper = async (req,res) =>{
+  try {
+    const pending = await Paper.find({approved: false}).sort({createdAt:-1});
+    res.json(pending);
+  } catch (error) {
+    res.status(500);
+  }
+}
+
+export const deletePaper = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const paper = await Paper.findById(id);
+
+    if (!paper) {
+      return res.status(404).json({ message: "Paper not found" });
+    }
+    await cloudinary.uploader.destroy(paper.cloudinary_id, {
+      resource_type: "raw"
+    });
+    await paper.deleteOne();
+    res.json({ message: "Paper deleted successfully" });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Delete failed" });
+  }
+};
+
+export const downloadPaper = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const paper = await Paper.findById(id);
+
+    if (!paper) {
+      return res.status(404).json({ message: "Paper not found" });
+    }
+
+    if (!paper.approved) {
+      return res.status(403).json({ message: "Paper not approved yet" });
+    }
+
+    await Paper.findByIdAndUpdate(id, {
+      $inc: { downloads: 1 }
+    });
+
+    res.json({
+      message: "Download ready",
+      fileURL: paper.fileURL
+    });
+
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Download failed" });
   }
 };

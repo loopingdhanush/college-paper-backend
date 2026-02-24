@@ -6,7 +6,6 @@ import connectDB from "./config/db.js";
 import paperRoutes from "./routes/paperRoutes.js";
 
 
-
 const app = express();
 
 connectDB();

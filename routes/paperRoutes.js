@@ -6,28 +6,35 @@ import {
   approvePaper, 
   uploadPaper, 
   getAllPapers, 
-  getApprovedPapers, 
-  getFilteredPaper } from "../controllers/paperController.js";
+  getFilteredPaper,
+  pendingPaper,
+  deletePaper,
+  downloadPaper } from "../controllers/paperController.js";
 
 const router = express.Router();
 const upload = multer({ dest: "uploads/" });
 
+//Upload Route
 router.post("/upload", authMiddleware, upload.single("file"), uploadPaper);
+//Filter approved papers
+router.get("/", authMiddleware, getFilteredPaper);
+//Download paper
+router.get("/download/:id", authMiddleware, downloadPaper);
+//Admin
+router.patch("/approve/:id", authMiddleware, adminMiddleware, approvePaper);
+router.get("/allpapers",authMiddleware,adminMiddleware,getAllPapers);
+router.get("/pendingpapers",authMiddleware,adminMiddleware,pendingPaper);
+router.delete("/:id",authMiddleware,adminMiddleware,deletePaper);
 
+//Testing Routes
 router.get("/admin-test",authMiddleware, adminMiddleware, (req,res)=>{
   res.json({message:"admin access granted"})
-})
-
+});
 router.get("/test", authMiddleware, (req, res) => {
   res.json({
     message: "Auth working",
     user: req.user.email
   });
 });
-
-router.patch("/approve/:id", authMiddleware, adminMiddleware, approvePaper);
-router.get("/allpapers",authMiddleware,adminMiddleware,getAllPapers)
-router.get("/approvedpapers",authMiddleware,getApprovedPapers)
-router.get("/", authMiddleware, getAllPapers);
 
 export default router;
