@@ -89,7 +89,7 @@ export const getFilteredPaper = async (req, res) => {
     const filter = { approved: true };
 
     if (department) filter.department = department;
-    if (subject) filter.subject = subject;
+    if (subject) filter.subject = { $regex: subject, $options: "i" };
     if (year) filter.year = Number(year);  // important
     if (type) filter.type = type;
 
@@ -141,10 +141,6 @@ export const downloadPaper = async (req, res) => {
 
     if (!paper) {
       return res.status(404).json({ message: "Paper not found" });
-    }
-
-    if (!paper.approved) {
-      return res.status(403).json({ message: "Paper not approved yet" });
     }
 
     await Paper.findByIdAndUpdate(id, {
