@@ -9,7 +9,7 @@ import {
   getFilteredPaper,
   pendingPaper,
   deletePaper,
-  downloadPaper } from "../controllers/paperController.js";
+  downloadPaper, getallcourses } from "../controllers/paperController.js";
 
 const router = express.Router();
 const upload = multer({ dest: "uploads/" });
@@ -18,6 +18,7 @@ const upload = multer({ dest: "uploads/" });
 router.post("/upload", authMiddleware, upload.single("file"), uploadPaper);
 //Filter approved papers
 router.get("/", authMiddleware, getFilteredPaper);
+router.get("/allcourses",authMiddleware,getallcourses)
 //Download paper
 router.get("/download/:id", authMiddleware, downloadPaper);
 //Admin

@@ -157,3 +157,12 @@ export const downloadPaper = async (req, res) => {
     res.status(500).json({ message: "Download failed" });
   }
 };
+
+export const getallcourses = async (req,res) =>{
+  try {
+    const subjects = await Paper.distinct("subject", { approved: true });
+    res.json({subjects})
+  } catch (error) {
+    res.status(500);
+  }
+}
