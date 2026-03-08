@@ -13,10 +13,7 @@ app.use(cookieParser());
 
 connectDB();
 app.use(cors({
-  origin: [
-    "http://localhost:5173",
-    "http://10.241.135.97:5173"
-  ],
+  origin: process.env.FRONTEND_URL,
   credentials: true
 }));
 
@@ -25,6 +22,8 @@ app.use(express.json());
 app.use("/api/papers", paperRoutes);
 app.use("/api/auth", authRoutes);
 
-app.listen(5000, "0.0.0.0", () => {
-  console.log("Server running");
+const PORT = process.env.PORT || 5000;
+
+app.listen(PORT, () => {
+  console.log(`Server running on ${PORT}`);
 });
