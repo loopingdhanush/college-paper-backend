@@ -49,7 +49,7 @@ export const uploadPaper = async (req, res) => {
 }
 };
 
-export const approvePaper = async (req, res) => {
+export const approvePaperById = async (req, res) => {
   try {
     const { id } = req.params;
 
@@ -82,7 +82,7 @@ export const getAllPapers = async(req,res) =>{
   }
 }
 
-export const getFilteredPaper = async (req, res) => {
+export const getFilteredPapers = async (req, res) => {
   try {
     const { department, subject, year, type } = req.query;
 
@@ -90,7 +90,7 @@ export const getFilteredPaper = async (req, res) => {
 
     if (department) filter.department = department;
     if (subject) filter.subject = { $regex: subject, $options: "i" };
-    if (year) filter.year = Number(year);  // important
+    if (year) filter.year = Number(year);  
     if (type) filter.type = type;
 
     const papers = await Paper.find(filter)
@@ -104,7 +104,7 @@ export const getFilteredPaper = async (req, res) => {
   }
 };
 
-export const pendingPaper = async (req,res) =>{
+export const getPendingPapers = async (req,res) =>{
   try {
     const pending = await Paper.find({approved: false}).sort({createdAt:-1});
     res.json(pending);
@@ -113,7 +113,7 @@ export const pendingPaper = async (req,res) =>{
   }
 }
 
-export const deletePaper = async (req, res) => {
+export const deletePaperById = async (req, res) => {
   try {
     const { id } = req.params;
 
@@ -133,7 +133,7 @@ export const deletePaper = async (req, res) => {
   }
 };
 
-export const downloadPaper = async (req, res) => {
+export const downloadPaperById = async (req, res) => {
   try {
     const { id } = req.params;
 
@@ -158,7 +158,7 @@ export const downloadPaper = async (req, res) => {
   }
 };
 
-export const getallcourses = async (req,res) =>{
+export const getAllCourses = async (req,res) =>{
   try {
     const subjects = await Paper.distinct("subject", { approved: true });
     res.json({subjects})

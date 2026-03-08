@@ -3,32 +3,31 @@ import multer from "multer";
 import authMiddleware from "../middleware/authMiddleware.js";
 import adminMiddleware from "../middleware/adminMiddleware.js";
 import { 
-  approvePaper, 
   uploadPaper, 
+  approvePaperById, 
   getAllPapers, 
-  getFilteredPaper,
-  pendingPaper,
-  deletePaper,
-  downloadPaper, getallcourses } from "../controllers/paperController.js";
+  getFilteredPapers,
+  getPendingPapers,
+  deletePaperById,
+  downloadPaperById, getAllCourses } from "../controllers/paperController.js";
 
 const router = express.Router();
 const upload = multer({ dest: "uploads/" });
 
-//Upload Route
-router.post("/upload", authMiddleware, upload.single("file"), uploadPaper);
-//Filter approved papers
-router.get("/", authMiddleware, getFilteredPaper);
-router.get("/allcourses",authMiddleware,getallcourses)
-//Download paper
-router.get("/download/:id", authMiddleware, downloadPaper);
+//User
+router.post("/", authMiddleware, upload.single("file"), uploadPaper);
+router.get("/", authMiddleware, getFilteredPapers);
+router.get("/courses",authMiddleware,getAllCourses)
+router.get("/:id/download", authMiddleware, downloadPaperById);
+
 //Admin
-router.patch("/approve/:id", authMiddleware, adminMiddleware, approvePaper);
-router.get("/allpapers",authMiddleware,adminMiddleware,getAllPapers);
-router.get("/pendingpapers",authMiddleware,adminMiddleware,pendingPaper);
-router.delete("/:id",authMiddleware,adminMiddleware,deletePaper);
+router.patch("/:id/approve", authMiddleware, adminMiddleware, approvePaperById);
+router.get("/admin/all",authMiddleware,adminMiddleware,getAllPapers);
+router.get("/admin/pending",authMiddleware,adminMiddleware,getPendingPapers);
+router.delete("/:id",authMiddleware,adminMiddleware,deletePaperById);
 
 //Testing Routes
-router.get("/admin-test",authMiddleware, adminMiddleware, (req,res)=>{
+router.get("/admin/test",authMiddleware, adminMiddleware, (req,res)=>{
   res.json({message:"admin access granted"})
 });
 router.get("/test", authMiddleware, (req, res) => {
